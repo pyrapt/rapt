@@ -194,22 +194,6 @@ class TestRename(TestUnaryNode):
         expected = ['Quest.a', 'Quest.b']
         self.assertEqual(expected, node.attributes.to_list())
 
-    def test_schema_is_not_modified_when_no_relation_name(self):
-        original = copy(self.schema)
-        RenameNode(self.question, None, ['a', 'b'], self.schema)
-        self.assertEqual(original, self.schema)
-
-    def test_schema_is_updated_when_no_explicit_attributes(self):
-        RenameNode(self.question, 'Quest', [], self.schema)
-        self.assertTrue(self.schema.contains('Quest'))
-        self.assertEqual(self.schema.get_attributes('Question'),
-                         self.schema.get_attributes('Quest'))
-
-    def test_schema_is_updated_when_attributes(self):
-        RenameNode(self.question, 'Quest', ['a', 'b'], self.schema)
-        self.assertTrue(self.schema.contains('Quest'))
-        self.assertEqual(['a', 'b'], self.schema.get_attributes('Quest'))
-
     def test_exception_when_too_few_attributes(self):
         self.assertRaises(InputError, RenameNode, self.question,
                           None, ['a'], self.schema)

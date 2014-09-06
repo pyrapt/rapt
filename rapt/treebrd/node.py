@@ -1,7 +1,7 @@
 import copy
 from enum import Enum
 
-from .errors import AttributeReferenceError, InputError
+from .errors import AttributeReferenceError, InputError, RelationReferenceError
 from .grammars.condition_grammar import get_attrs
 from .attributes import AttributeList
 
@@ -119,8 +119,10 @@ class RenameNode(UnaryNode):
         :param child: The child of this Node.
         """
         super().__init__(Operator.rename, child, name)
+        if schema.contains(name):
+            raise RelationReferenceError(
+                'Relation \'{name}\' already exists.'.format(name=name))
         self.attributes.rename(attributes, self.name)
-        schema.add(name, self.attributes.names, is_temporary=False)
 
 
 class AssignNode(UnaryNode):

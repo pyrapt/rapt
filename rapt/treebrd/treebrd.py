@@ -17,11 +17,7 @@ class TreeBRD:
     def build(self, instring, schema):
         ra = self.grammar.parse(instring).asList()
         _schema = Schema(schema)
-        result = []
-        for statement in ra[:]:
-            result.append(self.to_node(statement, _schema))
-            _schema.clear_temporary()
-        return result
+        return [self.to_node(statement, _schema) for statement in ra[:]]
 
     def to_node(self, exp, schema):
         """
