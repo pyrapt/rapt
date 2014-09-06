@@ -9,7 +9,9 @@ class Schema:
     """
 
     def __init__(self, definition):
-        self._data = copy.deepcopy(definition)
+        self._data = {}
+        for name, attributes in definition.items():
+            self._data[name.lower()] = [attr.lower() for attr in attributes]
 
     def __eq__(self, other):
         if type(self) is not type(other):

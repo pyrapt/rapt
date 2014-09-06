@@ -1,5 +1,5 @@
 from pyparsing import (alphanums, Regex, Word, alphas, quotedString,
-                       removeQuotes, Combine, Optional)
+                       removeQuotes, Combine, Optional, downcaseTokens)
 
 
 class ProtoGrammar:
@@ -48,7 +48,7 @@ class ProtoGrammar:
         """
         identifier ::= letter | letter string
         """
-        return Word(alphas, self.character)
+        return Word(alphas, self.character).setParseAction(downcaseTokens)
 
     @property
     def relation_name(self):

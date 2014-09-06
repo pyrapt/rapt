@@ -50,10 +50,10 @@ class TestProtoGrammar(GrammarTestCase):
         parse = self.parse_function(self.parser.identifier)
 
         self.assertEqual(parse('y'), ['y'])
-        self.assertEqual(parse('Q'), ['Q'])
+        self.assertEqual(parse('Q'), ['q'])
         self.assertEqual(parse('why'), ['why'])
         self.assertEqual(parse('why_not'), ['why_not'])
-        self.assertEqual(parse('Life_Is_42'), ['Life_Is_42'])
+        self.assertEqual(parse('Life_Is_42'), ['life_is_42'])
 
     def test_identifier_exp(self):
         parse = self.parse_function(self.parser.identifier)
