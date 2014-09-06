@@ -31,8 +31,10 @@ class ExtendedGrammar(CoreGrammar):
         """
         select_expr ::= select param_start conditions param_stop expression
         """
-        return self.parametrize(self.syntax.join_op, self.conditions). \
+        long = self.parametrize(self.syntax.theta_join_op, self.conditions)
+        short = self.parametrize(self.syntax.join_op, self.conditions).\
             setParseAction(self.theta_parse_action)
+        return long ^ short
 
     #todo: remove replacement of theta_join_op
     def theta_parse_action(self, s, l, t):
@@ -61,8 +63,6 @@ class ExtendedGrammar(CoreGrammar):
 
     def is_binary(self, operator):
         return (operator in {self.syntax.intersect_op,
-                             self.syntax.natural_join_op} or
+                             self.syntax.natural_join_op,
+                             self.syntax.theta_join_op} or
                 super().is_binary(operator))
-
-    def is_binary_with_params(self, operator):
-        return operator in {self.syntax.theta_join_op}

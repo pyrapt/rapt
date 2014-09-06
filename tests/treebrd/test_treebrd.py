@@ -1,9 +1,10 @@
 import functools
 from unittest import TestCase
 
-from rapt.treebrd.grammars import CoreGrammar
+from rapt.treebrd.grammars import CoreGrammar, ExtendedGrammar
 from rapt.treebrd.node import RelationNode, ProjectNode, \
-    CrossJoinNode, SelectNode, RenameNode
+    CrossJoinNode, SelectNode, RenameNode, JoinNode, NaturalJoinNode, \
+    ThetaJoinNode
 from rapt.treebrd.schema import Schema
 from rapt.treebrd.treebrd import TreeBRD
 
@@ -15,7 +16,7 @@ class TreeBRDTestCase(TestCase):
 
     @classmethod
     def create_build_function(cls, schema):
-        builder = TreeBRD(CoreGrammar())
+        builder = TreeBRD(ExtendedGrammar())
         return functools.partial(builder.build, schema=schema)
 
 
@@ -78,7 +79,7 @@ class TestProject(TreeBRDTestCase):
 
     def test_project_with_all_attr(self):
         attr = self.schema.get_attributes('magic_wand')
-        instring = '\project_{' + ', '.join(attr) + '} magic_wand;'
+        instring = '\\project_{' + ', '.join(attr) + '} magic_wand;'
         forest = self.build(instring)
         child = RelationNode('magic_wand', self.schema)
         expected = ProjectNode(child, attr)
@@ -87,10 +88,120 @@ class TestProject(TreeBRDTestCase):
     def test_project_with_all_attr_shuffled(self):
         attr = self.schema.get_attributes('magic_wand')
         attr.sort()
-        instring = '\project_{' + ', '.join(attr) + '} magic_wand;'
+        instring = '\\project_{' + ', '.join(attr) + '} magic_wand;'
         forest = self.build(instring)
         child = RelationNode('magic_wand', self.schema)
         expected = ProjectNode(child, attr)
+        self.assertEqual(expected, forest[0])
+
+
+class TestJoins(TreeBRDTestCase):
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.definition = {'alpha': ['a1'],
+                          'beta': ['b1', 'b2'],
+                          'gamma': ['c1', 'c2', 'c3']}
+        cls.schema = Schema(cls.definition)
+        cls.build = cls.create_build_function(cls.definition)
+
+    def test_join_with_natural_join(self):
+        instring = 'alpha \\join beta \\natural_join gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = CrossJoinNode(left, middle)
+        expected = NaturalJoinNode(intermediate, right)
+        self.assertEqual(expected, forest[0])
+
+    def test_natural_join_with_join(self):
+        instring = 'alpha \\natural_join beta \\join gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = NaturalJoinNode(left, middle)
+        expected = CrossJoinNode(intermediate, right)
+        self.assertEqual(expected, forest[0])
+
+    def test_join_with_theta_join(self):
+        instring = 'alpha \\join beta \\theta_join_{a1 = c1} gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = CrossJoinNode(left, middle)
+        expected = ThetaJoinNode(intermediate, right, 'a1 = c1')
+        self.assertEqual(expected, forest[0])
+
+    def test_theta_join_with_join(self):
+        instring = 'alpha \\theta_join_{a1 = b1} beta \\join gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = ThetaJoinNode(left, middle, 'a1 = b1')
+        expected = CrossJoinNode(intermediate, right)
+        self.assertEqual(expected, forest[0])
+
+
+class TestCrossJoin(TestJoins):
+    def test_join_two_separate_relations(self):
+        instring = 'alpha \\join beta;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('beta', self.schema)
+        expected = CrossJoinNode(left, right)
+        self.assertEqual(expected, forest[0])
+
+    def test_join_two_identical_relations(self):
+        instring = 'alpha \\join alpha;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('alpha', self.schema)
+        expected = CrossJoinNode(left, right)
+        self.assertEqual(expected, forest[0])
+        self.fail('Should not pass.')
+
+    def test_join_three_separate_relations(self):
+        instring = 'alpha \\join beta \\join gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = CrossJoinNode(left, middle)
+        expected = CrossJoinNode(intermediate, right)
+        self.assertEqual(expected, forest[0])
+
+
+class TestThetaJoin(TestJoins):
+    def test_join_two_separate_relations(self):
+        instring = 'alpha \\theta_join_{a1 = b1} beta;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('beta', self.schema)
+        expected = ThetaJoinNode(left, right, 'a1 = b1')
+        self.assertEqual(expected, forest[0])
+
+    def test_join_two_identical_relations(self):
+        instring = 'alpha \\theta_join_{a1 = a1} alpha;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('alpha', self.schema)
+        expected = ThetaJoinNode(left, right, 'a1 = a1')
+        self.assertEqual(expected, forest[0])
+        self.fail('Should not pass.')
+
+    def test_join_three_separate_relations(self):
+        instring = 'alpha \\theta_join_{a1 = b1} beta ' \
+                   '\\theta_join_{a1 = b1} gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = ThetaJoinNode(left, middle, 'a1 = b1')
+        expected = ThetaJoinNode(intermediate, right, 'a1 = b1')
         self.assertEqual(expected, forest[0])
 
 

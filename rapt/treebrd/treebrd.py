@@ -56,17 +56,23 @@ class TreeBRD:
 
         # Binary operators.
         elif self.grammar.is_binary(exp[1]):
-            # Build from right to left, to create the correct syntax tree.
-            left = self.to_node(exp[:-2], schema)
-            right = self.to_node(exp[-1], schema)
-            node = self.create_binary_node(operator=exp[-2], left=left,
-                                           right=right)
+            # Pyparsing will put different operators with the same precedence
+            # in the same list. This can be a problem when we mix operators with
+            # and without parameters (for example join). We avoid this below
+            # and build from right to left, to create the correct syntax tree.
+            if isinstance(exp[-2], str):
+                # Operator without parameters
+                op_pos = -2
+                param = None
+            else:
+                op_pos = -3
+                param = exp[-2]
 
-        elif self.grammar.is_binary_with_params(exp[1]):
-            left = self.to_node(exp[0], schema)
-            right = self.to_node(exp[3:], schema)
-            node = self.create_binary_node(operator=exp[1], left=left,
-                                           right=right, param=exp[2])
+            operator = exp[op_pos]
+            left = self.to_node(exp[:op_pos], schema)
+            right = self.to_node(exp[-1], schema)
+            node = self.create_binary_node(operator=operator, left=left,
+                                           right=right, param=param)
 
         else:
             raise ValueError
