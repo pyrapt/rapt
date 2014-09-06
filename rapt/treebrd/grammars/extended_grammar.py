@@ -53,8 +53,12 @@ class ExtendedGrammar(CoreGrammar):
         return CaselessKeyword(self.syntax.intersect_op)
 
     @property
-    def binary_op_p2(self):
-        return super().binary_op_p2 | self.intersect
+    def expression(self):
+        return operatorPrecedence(self.relation, [
+            (self.unary_op, 1, opAssoc.RIGHT),
+            (self.binary_op_p1, 2, opAssoc.LEFT),
+            (self.intersect, 2, opAssoc.LEFT),
+            (self.binary_op_p2, 2, opAssoc.LEFT)])
 
     def is_unary(self, operator):
         return operator in {self.syntax.select_op,

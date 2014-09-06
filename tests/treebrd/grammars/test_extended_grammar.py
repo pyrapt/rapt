@@ -25,10 +25,18 @@ class TestIntersect(GrammarTestCase):
         actual = self.parse(expression)
         self.assertEqual(expected, actual)
 
-    def test_other_binary(self):
+    def test_intersect_precedence_when_before_set_operator(self):
         expression = 'zeppelin \\intersect floyd \\union doors;'
         expected = [
-            [['zeppelin'], '\\intersect', ['floyd'], '\\union', ['doors']]
+            [[['zeppelin'], '\\intersect', ['floyd']], '\\union', ['doors']]
+        ]
+        actual = self.parse(expression)
+        self.assertEqual(expected, actual)
+
+    def test_intersect_precedence_when_after_set_operator(self):
+        expression = 'zeppelin \\union floyd \\intersect doors;'
+        expected = [
+            [['zeppelin'], '\\union', [['floyd'], '\\intersect', ['doors']]]
         ]
         actual = self.parse(expression)
         self.assertEqual(expected, actual)
