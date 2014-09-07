@@ -662,7 +662,7 @@ class TestIntersection(TestTranslator):
     def test_intersect_subset_bag(self):
         instring = 'alpha \\intersect alpha_subset;'
         translation = self.translate_bag(instring)
-        expected = [('1', 'a', '!'), ('1', 'a', '!')]
+        expected = [('1', 'a', '!')]
         self.assertCountEqual(expected, self.query_list(translation))
 
 
