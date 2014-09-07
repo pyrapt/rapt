@@ -22,64 +22,64 @@ class TestSQL(TestTransformer):
 
 class TestRelation(TestSQL):
     def test_single_relation(self):
-        ra = 'Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = 'alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_single_relation_set(self):
-        ra = 'Alpha;'
-        expected = ['SELECT DISTINCT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = 'alpha;'
+        expected = ['SELECT DISTINCT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate_set(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_relations(self):
-        ra = 'Alpha; Beta;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha',
-                    'SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta']
+        ra = 'alpha; beta;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha',
+                    'SELECT beta.b1, beta.b2, beta.b3 FROM beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestSelect(TestSQL):
     def test_single_select(self):
-        ra = '\\select_{a1=a2} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 '
-                    'FROM Alpha WHERE a1 = a2']
+        ra = '\\select_{a1=a2} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 '
+                    'FROM alpha WHERE a1 = a2']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_single_select_set(self):
-        ra = '\\select_{a1=a2} Alpha;'
-        expected = ['SELECT DISTINCT Alpha.a1, Alpha.a2, Alpha.a3 '
-                    'FROM Alpha WHERE a1 = a2']
+        ra = '\\select_{a1=a2} alpha;'
+        expected = ['SELECT DISTINCT alpha.a1, alpha.a2, alpha.a3 '
+                    'FROM alpha WHERE a1 = a2']
         actual = self.translate_set(ra)
         self.assertEqual(expected, actual)
 
     def test_single_select_with_relation(self):
-        ra = '\\select_{Alpha.a1=a2} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha '
-                    'WHERE Alpha.a1 = a2']
+        ra = '\\select_{alpha.a1=a2} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha '
+                    'WHERE alpha.a1 = a2']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_selects(self):
-        ra = '\\select_{a1=1} \\select_{a2=2} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha '
+        ra = '\\select_{a1=1} \\select_{a2=2} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha '
                     'WHERE (a2 = 2) AND (a1 = 1)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_select_with_precedence(self):
-        ra = '\\select_{a2=a3} (\\select_{a1=a2} Alpha);'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha '
+        ra = '\\select_{a2=a3} (\\select_{a1=a2} alpha);'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha '
                     'WHERE (a1 = a2) AND (a2 = a3)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_select_with_multiple_conditions(self):
-        ra = '\\select_{a1=2 or a1=1} \\select_{a2=2 or a2=1} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha '
+        ra = '\\select_{a1=2 or a1=1} \\select_{a2=2 or a2=1} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha '
                     'WHERE (a2 = 2 or a2 = 1) AND (a1 = 2 or a1 = 1)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
@@ -99,20 +99,20 @@ class TestSelect(TestSQL):
 
 class TestProject(TestSQL):
     def test_simple(self):
-        ra = '\\project_{a1, a2, a3} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = '\\project_{a1, a2, a3} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_prefixed(self):
-        ra = '\\project_{Alpha.a1, Alpha.a2, Alpha.a3} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = '\\project_{alpha.a1, alpha.a2, alpha.a3} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_subset(self):
-        ra = '\\project_{a1, Alpha.a2} Alpha;'
-        expected = ['SELECT Alpha.a1, Alpha.a2 FROM Alpha']
+        ra = '\\project_{a1, alpha.a2} alpha;'
+        expected = ['SELECT alpha.a1, alpha.a2 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -131,246 +131,246 @@ class TestProject(TestSQL):
 
 class TestRename(TestSQL):
     def test_relation(self):
-        ra = '\\rename_{Apex} Alpha;'
-        expected = ['SELECT Apex.a1, Apex.a2, Apex.a3 '
-                    'FROM (SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) '
-                    'AS Apex(a1, a2, a3)']
+        ra = '\\rename_{apex} alpha;'
+        expected = ['SELECT apex.a1, apex.a2, apex.a3 '
+                    'FROM (SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) '
+                    'AS apex(a1, a2, a3)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_rename_attributes(self):
-        ra = '\\rename_{(a, b, c)} Alpha;'
-        expected = ['SELECT Alpha.a, Alpha.b, Alpha.c '
-                    'FROM (SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) '
-                    'AS Alpha(a, b, c)']
+        ra = '\\rename_{(a, b, c)} alpha;'
+        expected = ['SELECT alpha.a, alpha.b, alpha.c '
+                    'FROM (SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) '
+                    'AS alpha(a, b, c)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_rename_all(self):
-        ra = '\\rename_{Apex(a, b, c)} Alpha;'
-        expected = ['SELECT Apex.a, Apex.b, Apex.c '
-                    'FROM (SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) '
-                    'AS Apex(a, b, c)']
+        ra = '\\rename_{apex(a, b, c)} alpha;'
+        expected = ['SELECT apex.a, apex.b, apex.c '
+                    'FROM (SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) '
+                    'AS apex(a, b, c)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_rename_with_select(self):
-        ra = '\\rename_{Apex(a, b, c)} \\select_{a1 = a2} Alpha;'
-        expected = ['SELECT Apex.a, Apex.b, Apex.c '
-                    'FROM (SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha '
-                    'WHERE a1 = a2) AS Apex(a, b, c)']
+        ra = '\\rename_{apex(a, b, c)} \\select_{a1 = a2} alpha;'
+        expected = ['SELECT apex.a, apex.b, apex.c '
+                    'FROM (SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha '
+                    'WHERE a1 = a2) AS apex(a, b, c)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_rename_is_projected(self):
-        ra = '\\project_{a, c} \\rename_{Apex(a, b, c)} Alpha;'
-        expected = ['SELECT Apex.a, Apex.c '
-                    'FROM (SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) '
-                    'AS Apex(a, b, c)']
+        ra = '\\project_{a, c} \\rename_{apex(a, b, c)} alpha;'
+        expected = ['SELECT apex.a, apex.c '
+                    'FROM (SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) '
+                    'AS apex(a, b, c)']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestAssignment(TestSQL):
     def test_relation(self):
-        ra = 'NewAlpha := Alpha;'
-        expected = ['CREATE TEMPORARY TABLE NewAlpha(a1, a2, a3) AS '
-                    'SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = 'newalpha := alpha;'
+        expected = ['CREATE TEMPORARY TABLE newalpha(a1, a2, a3) AS '
+                    'SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_relation_with_attributes(self):
-        ra = 'NewAlpha(a, b, c) := Alpha;'
-        expected = ['CREATE TEMPORARY TABLE NewAlpha(a, b, c) AS '
-                    'SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha']
+        ra = 'newalpha(a, b, c) := alpha;'
+        expected = ['CREATE TEMPORARY TABLE newalpha(a, b, c) AS '
+                    'SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_relation_with_ambiguous_attributes(self):
-        ra = 'NewAlpha(a, b, c) := Ambiguous;'
-        expected = ['CREATE TEMPORARY TABLE NewAlpha(a, b, c) AS '
-                    'SELECT Ambiguous.a, Ambiguous.a, Ambiguous.b '
-                    'FROM Ambiguous']
+        ra = 'newalpha(a, b, c) := ambiguous;'
+        expected = ['CREATE TEMPORARY TABLE newalpha(a, b, c) AS '
+                    'SELECT ambiguous.a, ambiguous.a, ambiguous.b '
+                    'FROM ambiguous']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_select(self):
-        ra = 'Niche := \select_{b1=1} Beta;'
-        expected = ['CREATE TEMPORARY TABLE Niche(b1, b2, b3) AS '
-                    'SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta '
+        ra = 'niche := \select_{b1=1} beta;'
+        expected = ['CREATE TEMPORARY TABLE niche(b1, b2, b3) AS '
+                    'SELECT beta.b1, beta.b2, beta.b3 FROM beta '
                     'WHERE b1 = 1']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_select_with_attributes(self):
-        ra = 'Niche(a, b, c) := \select_{b1=1} Beta;'
-        expected = ['CREATE TEMPORARY TABLE Niche(a, b, c) AS '
-                    'SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta '
+        ra = 'niche(a, b, c) := \select_{b1=1} beta;'
+        expected = ['CREATE TEMPORARY TABLE niche(a, b, c) AS '
+                    'SELECT beta.b1, beta.b2, beta.b3 FROM beta '
                     'WHERE b1 = 1']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_project(self):
-        ra = 'Bilk := \\project_{b1, b2} Beta;'
-        expected = ['CREATE TEMPORARY TABLE Bilk(b1, b2) AS '
-                    'SELECT Beta.b1, Beta.b2 FROM Beta']
+        ra = 'bilk := \\project_{b1, b2} beta;'
+        expected = ['CREATE TEMPORARY TABLE bilk(b1, b2) AS '
+                    'SELECT beta.b1, beta.b2 FROM beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_project_with_attributes(self):
-        ra = 'Bilk(a, b) := \\project_{b1, b2} Beta;'
-        expected = ['CREATE TEMPORARY TABLE Bilk(a, b) AS '
-                    'SELECT Beta.b1, Beta.b2 FROM Beta']
+        ra = 'bilk(a, b) := \\project_{b1, b2} beta;'
+        expected = ['CREATE TEMPORARY TABLE bilk(a, b) AS '
+                    'SELECT beta.b1, beta.b2 FROM beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_project_select(self):
-        ra = 'Combine := \\project_{b1, b2} \\select_{b1 = 1} Beta;'
-        expected = ['CREATE TEMPORARY TABLE Combine(b1, b2) AS '
-                    'SELECT Beta.b1, Beta.b2 FROM Beta '
+        ra = 'combine := \\project_{b1, b2} \\select_{b1 = 1} beta;'
+        expected = ['CREATE TEMPORARY TABLE combine(b1, b2) AS '
+                    'SELECT beta.b1, beta.b2 FROM beta '
                     'WHERE b1 = 1']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_join(self):
-        ra = 'Bound := Alpha \\join Beta;'
-        expected = ['CREATE TEMPORARY TABLE Bound(a1, a2, a3, b1, b2, b3) AS '
-                    'SELECT Alpha.a1, Alpha.a2, Alpha.a3, Beta.b1, Beta.b2, '
-                    'Beta.b3 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'bound := alpha \\join beta;'
+        expected = ['CREATE TEMPORARY TABLE bound(a1, a2, a3, b1, b2, b3) AS '
+                    'SELECT alpha.a1, alpha.a2, alpha.a3, beta.b1, beta.b2, '
+                    'beta.b3 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta']
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_join_with_attributes(self):
-        ra = 'Bound(a, b, c, d, e, f) := Alpha \\join Beta;'
-        expected = ['CREATE TEMPORARY TABLE Bound(a, b, c, d, e, f) AS '
-                    'SELECT Alpha.a1, Alpha.a2, Alpha.a3, Beta.b1, Beta.b2, '
-                    'Beta.b3 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'bound(a, b, c, d, e, f) := alpha \\join beta;'
+        expected = ['CREATE TEMPORARY TABLE bound(a, b, c, d, e, f) AS '
+                    'SELECT alpha.a1, alpha.a2, alpha.a3, beta.b1, beta.b2, '
+                    'beta.b3 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta']
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestJoin(TestSQL):
     def test_relation(self):
-        ra = 'Alpha \\join Beta;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, '
-                    'Beta.b1, Beta.b2, Beta.b3 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\join beta;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, '
+                    'beta.b1, beta.b2, beta.b3 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta']
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_three_relations(self):
         self.maxDiff = None
-        ra = 'Alpha \\join Beta \\join Gamma;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, Beta.b1, Beta.b2, '
-                    'Beta.b3, Gamma.g1, Gamma.g2 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\join beta \\join gamma;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, beta.b1, beta.b2, '
+                    'beta.b3, gamma.g1, gamma.g2 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta '
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
                     'CROSS JOIN '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma) AS Gamma']
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma) AS gamma']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_relations(self):
-        ra = 'Alpha \\join Beta \\join Gamma \\join Delta;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, Beta.b1, Beta.b2, '
-                    'Beta.b3, Gamma.g1, Gamma.g2, Delta.d1, Delta.d2 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\join beta \\join gamma \\join delta;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, beta.b1, beta.b2, '
+                    'beta.b3, gamma.g1, gamma.g2, delta.d1, delta.d2 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta '
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
                     'CROSS JOIN '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma) AS Gamma '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma) AS gamma '
                     'CROSS JOIN '
-                    '(SELECT Delta.d1, Delta.d2 FROM Delta) AS Delta']
+                    '(SELECT delta.d1, delta.d2 FROM delta) AS delta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_right_join_first(self):
-        ra = 'Alpha \\join (Beta \\join Gamma);'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, Beta.b1, Beta.b2, '
-                    'Beta.b3, Gamma.g1, Gamma.g2 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\join (beta \\join gamma);'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, beta.b1, beta.b2, '
+                    'beta.b3, gamma.g1, gamma.g2 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta '
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
                     'CROSS JOIN '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma) AS Gamma']
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma) AS gamma']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_select_right(self):
-        ra = 'Delta \\join \\select_{g1 = g2} Gamma;'
-        expected = ['SELECT Delta.d1, Delta.d2, Gamma.g1, Gamma.g2 FROM '
-                    '(SELECT Delta.d1, Delta.d2 FROM Delta) AS Delta '
+        ra = 'delta \\join \\select_{g1 = g2} gamma;'
+        expected = ['SELECT delta.d1, delta.d2, gamma.g1, gamma.g2 FROM '
+                    '(SELECT delta.d1, delta.d2 FROM delta) AS delta '
                     'CROSS JOIN '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma '
-                    'WHERE g1 = g2) AS Gamma']
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma '
+                    'WHERE g1 = g2) AS gamma']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_select_left(self):
-        ra = '\\select_{g1 = g2} Gamma \\join  Delta;'
-        expected = ['SELECT Gamma.g1, Gamma.g2, Delta.d1, Delta.d2 FROM '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma '
-                    'WHERE g1 = g2) AS Gamma '
+        ra = '\\select_{g1 = g2} gamma \\join  delta;'
+        expected = ['SELECT gamma.g1, gamma.g2, delta.d1, delta.d2 FROM '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma '
+                    'WHERE g1 = g2) AS gamma '
                     'CROSS JOIN '
-                    '(SELECT Delta.d1, Delta.d2 FROM Delta) AS Delta']
+                    '(SELECT delta.d1, delta.d2 FROM delta) AS delta']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_select_on_join(self):
-        ra = '\\select_{g1 = g2} (Gamma \\join Delta);'
+        ra = '\\select_{g1 = g2} (gamma \\join delta);'
         translation = self.translate(ra)
-        expected = ['SELECT Gamma.g1, Gamma.g2, Delta.d1, Delta.d2 FROM '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma) AS Gamma '
+        expected = ['SELECT gamma.g1, gamma.g2, delta.d1, delta.d2 FROM '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma) AS gamma '
                     'CROSS JOIN '
-                    '(SELECT Delta.d1, Delta.d2 FROM Delta) AS Delta '
+                    '(SELECT delta.d1, delta.d2 FROM delta) AS delta '
                     'WHERE g1 = g2']
         actual = translation
         self.assertEqual(expected, actual)
 
     def test_join_with_rename(self):
-        ra = '\\rename_{G} Gamma \\join \\rename_{H} Gamma;'
+        ra = '\\rename_{g} gamma \\join \\rename_{h} gamma;'
         translation = self.translate(ra)
-        expected = ['SELECT G.g1, G.g2, H.g1, H.g2 FROM '
-                    '(SELECT G.g1, G.g2 FROM (SELECT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS G(g1, g2)) AS G '
+        expected = ['SELECT g.g1, g.g2, h.g1, h.g2 FROM '
+                    '(SELECT g.g1, g.g2 FROM (SELECT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS g(g1, g2)) AS g '
                     'CROSS JOIN '
-                    '(SELECT H.g1, H.g2 FROM (SELECT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS H(g1, g2)) AS H']
+                    '(SELECT h.g1, h.g2 FROM (SELECT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS h(g1, g2)) AS h']
         actual = translation
         self.assertEqual(expected, actual)
 
     def test_join_with_rename_set(self):
-        ra = '\\rename_{G} Gamma \\join \\rename_{H} Gamma;'
+        ra = '\\rename_{g} gamma \\join \\rename_{h} gamma;'
         translation = self.translate_set(ra)
-        expected = ['SELECT DISTINCT G.g1, G.g2, H.g1, H.g2 FROM '
-                    '(SELECT DISTINCT G.g1, G.g2 '
-                    'FROM (SELECT DISTINCT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS G(g1, g2)) AS G '
+        expected = ['SELECT DISTINCT g.g1, g.g2, h.g1, h.g2 FROM '
+                    '(SELECT DISTINCT g.g1, g.g2 '
+                    'FROM (SELECT DISTINCT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS g(g1, g2)) AS g '
                     'CROSS JOIN '
-                    '(SELECT DISTINCT H.g1, H.g2 '
-                    'FROM (SELECT DISTINCT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS H(g1, g2)) AS H']
+                    '(SELECT DISTINCT h.g1, h.g2 '
+                    'FROM (SELECT DISTINCT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS h(g1, g2)) AS h']
         actual = translation
         self.assertEqual(expected, actual)
 
     def test_join_with_rename_attributes(self):
-        ra = '\\rename_{G(a, b)} Gamma \\join \\rename_{H(a, b)} Gamma;'
+        ra = '\\rename_{g(a, b)} gamma \\join \\rename_{h(a, b)} gamma;'
         translation = self.translate(ra)
-        expected = ['SELECT G.a, G.b, H.a, H.b FROM '
-                    '(SELECT G.a, G.b FROM (SELECT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS G(a, b)) AS G '
+        expected = ['SELECT g.a, g.b, h.a, h.b FROM '
+                    '(SELECT g.a, g.b FROM (SELECT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS g(a, b)) AS g '
                     'CROSS JOIN '
-                    '(SELECT H.a, H.b FROM (SELECT Gamma.g1, Gamma.g2 '
-                    'FROM Gamma) AS H(a, b)) AS H']
+                    '(SELECT h.a, h.b FROM (SELECT gamma.g1, gamma.g2 '
+                    'FROM gamma) AS h(a, b)) AS h']
         actual = translation
         self.assertEqual(expected, actual)
 
@@ -379,26 +379,26 @@ class TestNaturalJoin(TestSQL):
     grammar = ExtendedGrammar()
 
     def test_relation_simple(self):
-        ra = 'Alpha \\natural_join AlphaTwin;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\natural_join alphatwin;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'NATURAL JOIN '
-                    '(SELECT AlphaTwin.a1, AlphaTwin.a2, AlphaTwin.a3 '
-                    'FROM AlphaTwin) AS AlphaTwin']
+                    '(SELECT alphatwin.a1, alphatwin.a2, alphatwin.a3 '
+                    'FROM alphatwin) AS alphatwin']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_three_relations(self):
-        ra = 'Alpha \\natural_join AlphaTwin \\natural_join AlphaPrime;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, AlphaPrime.a4, '
-                    'AlphaPrime.a5 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\natural_join alphatwin \\natural_join alphaprime;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, alphaprime.a4, '
+                    'alphaprime.a5 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'NATURAL JOIN '
-                    '(SELECT AlphaTwin.a1, AlphaTwin.a2, AlphaTwin.a3 '
-                    'FROM AlphaTwin) AS AlphaTwin '
+                    '(SELECT alphatwin.a1, alphatwin.a2, alphatwin.a3 '
+                    'FROM alphatwin) AS alphatwin '
                     'NATURAL JOIN '
-                    '(SELECT AlphaPrime.a1, AlphaPrime.a4, AlphaPrime.a5 '
-                    'FROM AlphaPrime) AS AlphaPrime']
+                    '(SELECT alphaprime.a1, alphaprime.a4, alphaprime.a5 '
+                    'FROM alphaprime) AS alphaprime']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -407,12 +407,12 @@ class TestThetaJoin(TestSQL):
     grammar = ExtendedGrammar()
 
     def test_relation(self):
-        ra = 'Alpha \\join_{a1 = b1} Beta;'
-        expected = ['SELECT Alpha.a1, Alpha.a2, Alpha.a3, '
-                    'Beta.b1, Beta.b2, Beta.b3 FROM '
-                    '(SELECT Alpha.a1, Alpha.a2, Alpha.a3 FROM Alpha) AS Alpha '
+        ra = 'alpha \\join_{a1 = b1} beta;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, '
+                    'beta.b1, beta.b2, beta.b3 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
                     'CROSS JOIN '
-                    '(SELECT Beta.b1, Beta.b2, Beta.b3 FROM Beta) AS Beta '
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
                     'WHERE a1 = b1']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
@@ -420,21 +420,21 @@ class TestThetaJoin(TestSQL):
 
 class TestSet:
     def test_simple(self):
-        ra = 'Gamma {operator} GammaTwin;'.format(operator=self.ra_operator)
+        ra = 'gamma {operator} gammatwin;'.format(operator=self.ra_operator)
 
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0])
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
 
         expected = ['SELECT g1, g2 FROM ('
-                    'SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+                    'SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) '
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) '
                     'AS _{name}'.format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
     def test_simple_multiple(self):
-        ra = 'Gamma {operator} GammaTwin {operator} GammaPrime;'.format(operator=self.ra_operator)
+        ra = 'gamma {operator} gammatwin {operator} gammaprime;'.format(operator=self.ra_operator)
 
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         root_name = id(root_list[0])
@@ -443,81 +443,81 @@ class TestSet:
 
         expected = ['SELECT g1, g2 FROM ('
                     'SELECT g1, g2 FROM '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) AS _{name1} '
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) AS _{name1} '
                     '{operator} ALL '
-                    'SELECT GammaPrime.g1, GammaPrime.g2 FROM GammaPrime) AS _{name2}'
+                    'SELECT gammaprime.g1, gammaprime.g2 FROM gammaprime) AS _{name2}'
                         .format(operator=self.sql_operator, name1=child_name, name2=root_name)]
         self.assertEqual(expected, actual)
 
     def test_select_simple(self):
-        ra = '\\select_{{g1 = g2}} (Gamma {operator} GammaTwin);'.format(operator=self.ra_operator)
+        ra = '\\select_{{g1 = g2}} (gamma {operator} gammatwin);'.format(operator=self.ra_operator)
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0].child)
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
         expected = ['SELECT g1, g2 FROM '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) '
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) '
                     'AS _{name} WHERE g1 = g2'
                         .format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
     def test_project_simple(self):
-        ra = '\\project_{{g2}} (Gamma {operator} GammaTwin);'.format(operator=self.ra_operator)
+        ra = '\\project_{{g2}} (gamma {operator} gammatwin);'.format(operator=self.ra_operator)
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0].child)
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
         expected = ['SELECT g2 FROM '
-                    '(SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+                    '(SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) '
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) '
                     'AS _{name}'
                         .format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
     def test_project_left(self):
-        ra = '\\project_{{g1, g2}} GammaPrime {operator} Gamma;'.format(operator=self.ra_operator)
+        ra = '\\project_{{g1, g2}} gammaprime {operator} gamma;'.format(operator=self.ra_operator)
 
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0])
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
 
         expected = ['SELECT g1, g2 FROM '
-                    '(SELECT GammaPrime.g1, GammaPrime.g2 FROM GammaPrime '
+                    '(SELECT gammaprime.g1, gammaprime.g2 FROM gammaprime '
                     '{operator} ALL '
-                    'SELECT Gamma.g1, Gamma.g2 FROM Gamma) AS _{name}'
+                    'SELECT gamma.g1, gamma.g2 FROM gamma) AS _{name}'
                         .format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
     def test_rename_simple(self):
-        ra = '\\rename_{{G}} (Gamma {operator} GammaTwin);'.format(operator=self.ra_operator)
+        ra = '\\rename_{{g}} (gamma {operator} gammatwin);'.format(operator=self.ra_operator)
 
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0].child)
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
 
-        expected = ['SELECT G.g1, G.g2 FROM '
-                    '(SELECT g1, g2 FROM (SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+        expected = ['SELECT g.g1, g.g2 FROM '
+                    '(SELECT g1, g2 FROM (SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) '
-                    'AS _{name}) AS G(g1, g2)'
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) '
+                    'AS _{name}) AS g(g1, g2)'
                         .format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
     def test_rename_attributes(self):
-        ra = '\\rename_{{G(a, b)}} (Gamma {operator} GammaTwin);'.format(operator=self.ra_operator)
+        ra = '\\rename_{{g(a, b)}} (gamma {operator} gammatwin);'.format(operator=self.ra_operator)
 
         root_list = TreeBRD(self.grammar).build(instring=ra, schema=self.schema)
         name = id(root_list[0].child)
         actual = sql_translator.translate(root_list, use_bag_semantics=True)
 
-        expected = ['SELECT G.a, G.b FROM '
-                    '(SELECT g1, g2 FROM (SELECT Gamma.g1, Gamma.g2 FROM Gamma '
+        expected = ['SELECT g.a, g.b FROM '
+                    '(SELECT g1, g2 FROM (SELECT gamma.g1, gamma.g2 FROM gamma '
                     '{operator} ALL '
-                    'SELECT GammaTwin.g1, GammaTwin.g2 FROM GammaTwin) AS _{name}) '
-                    'AS G(a, b)'.format(operator=self.sql_operator, name=name)]
+                    'SELECT gammatwin.g1, gammatwin.g2 FROM gammatwin) AS _{name}) '
+                    'AS g(a, b)'.format(operator=self.sql_operator, name=name)]
         self.assertEqual(expected, actual)
 
 

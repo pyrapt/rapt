@@ -7,15 +7,15 @@ class TestTransformer(TestCase):
     @classmethod
     def setUpClass(cls):
         cls.schema = {
-            'Alpha': ['a1', 'a2', 'a3'],
-            'AlphaTwin': ['a1', 'a2', 'a3'],
-            'AlphaPrime': ['a1', 'a4', 'a5'],
-            'Beta': ['b1', 'b2', 'b3'],
-            'Gamma': ['g1', 'g2'],
-            'GammaPrime': ['g1', 'g2'],
-            'GammaTwin': ['g1', 'g2'],
-            'Delta': ['d1', 'd2'],
-            'Ambiguous': ['a', 'a', 'b']
+            'alpha': ['a1', 'a2', 'a3'],
+            'alphatwin': ['a1', 'a2', 'a3'],
+            'alphaprime': ['a1', 'a4', 'a5'],
+            'beta': ['b1', 'b2', 'b3'],
+            'gamma': ['g1', 'g2'],
+            'gammaprime': ['g1', 'g2'],
+            'gammatwin': ['g1', 'g2'],
+            'delta': ['d1', 'd2'],
+            'ambiguous': ['a', 'a', 'b']
         }
 
     def translate_func(self, func, schema=None):
