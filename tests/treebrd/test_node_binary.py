@@ -1,135 +1,164 @@
-from unittest import TestCase
-
-from rapt.treebrd.node import RelationNode, UnionNode, DifferenceNode, BinaryNode, \
+from rapt.treebrd.node import UnionNode, DifferenceNode, BinaryNode, \
     IntersectNode, CrossJoinNode
 from rapt.treebrd.errors import InputError
 from rapt.treebrd.node import Operator
-from rapt.treebrd.schema import Schema
+from tests.treebrd.test_node import NodeTestCase
 
 
-class BinaryTestCase(TestCase):
-    @classmethod
-    def setUpClass(cls):
-        cls.schema = Schema({
-            'Questions': ['id', 'question'],
-            'Answers': ['id', 'question', 'answer'],
-            'Ambiguous': ['twin', 'odd', 'twin']
-        })
-
-    def setUp(self):
-        self.questions = RelationNode('Questions', self.schema)
-        self.answers = RelationNode('Answers', self.schema)
-        self.answers_twin = RelationNode('Answers', self.schema)
+class BinaryTestCase(NodeTestCase):
+    pass
 
 
 class TestBinaryNode(BinaryTestCase):
     def test_binary_children(self):
-        node = BinaryNode(Operator.union, self.questions, self.answers)
-        self.assertEqual(self.questions, node.left)
-        self.assertEqual(self.answers, node.right)
+        node = BinaryNode(Operator.union, self.beta, self.gamma)
+        self.assertEqual(self.beta, node.left)
+        self.assertEqual(self.gamma, node.right)
+
+
+class TestBinaryNodeEquality(BinaryTestCase):
+    def test_equality_when_identical(self):
+        node = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        same = node
+        self.assertTrue(node == same)
+
+    def test_equality_when_same_operator_and_name(self):
+        node = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        twin = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        self.assertTrue(node == twin)
+
+    def test_non_equality_when_different_operator_and_name(self):
+        node = BinaryNode(Operator.natural_join, self.alpha, self.beta, 'borg')
+        other = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'other')
+        self.assertTrue(node != other)
+
+    def test_non_equality_when_different_operator(self):
+        node = BinaryNode(Operator.natural_join, self.alpha, self.beta, 'borg')
+        other = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        self.assertTrue(node != other)
+
+    def test_non_equality_when_different_name(self):
+        node = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        other = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'other')
+        self.assertTrue(node != other)
+
+    def test_non_equality_when_same_operator_and_one_no_name(self):
+        node = BinaryNode(Operator.cross_join, self.alpha, self.beta, 'borg')
+        other = BinaryNode(Operator.cross_join, self.alpha, self.beta)
+        self.assertTrue(node != other)
 
 
 class TestUnionNode(BinaryTestCase):
     def test_operator_on_init(self):
-        node = UnionNode(self.questions, self.questions)
+        node = UnionNode(self.beta, self.beta)
         self.assertEqual(Operator.union, node.operator)
 
     def test_children_on_init(self):
-        node = UnionNode(self.answers, self.answers_twin)
-        self.assertEqual(self.answers, node.left)
-        self.assertEqual(self.answers_twin, node.right)
+        node = UnionNode(self.twin, self.twin_prime)
+        self.assertEqual(self.twin, node.left)
+        self.assertEqual(self.twin_prime, node.right)
 
     def test_attributes(self):
-        node = UnionNode(self.questions, self.questions)
-        expected = ['id', 'question']
+        node = UnionNode(self.beta, self.beta)
+        expected = get_attributes('beta', self.schema)
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_mismatch(self):
-        self.assertRaises(InputError, UnionNode, self.questions, self.answers)
+        self.assertRaises(InputError, UnionNode, self.beta, self.gamma)
 
 
 class TestDifferenceNode(BinaryTestCase):
     def test_operator_on_init(self):
-        node = DifferenceNode(self.questions, self.questions)
+        node = DifferenceNode(self.beta, self.beta)
         self.assertEqual(Operator.difference, node.operator)
 
     def test_name_on_init(self):
-        node = DifferenceNode(self.questions, self.questions)
+        node = DifferenceNode(self.beta, self.beta)
         self.assertIsNone(node.name)
 
     def test_children_on_init(self):
-        node = DifferenceNode(self.answers, self.answers_twin)
-        self.assertEqual(self.answers, node.left)
-        self.assertEqual(self.answers_twin, node.right)
+        node = DifferenceNode(self.twin, self.twin_prime)
+        self.assertEqual(self.twin, node.left)
+        self.assertEqual(self.twin_prime, node.right)
 
     def test_attributes(self):
-        node = DifferenceNode(self.questions, self.questions)
-        expected = ['id', 'question']
+        node = DifferenceNode(self.beta, self.beta)
+        expected = get_attributes('beta', self.schema)
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_mismatch(self):
-        self.assertRaises(InputError, DifferenceNode, self.questions,
-                          self.answers)
+        self.assertRaises(InputError, DifferenceNode, self.beta,
+                          self.gamma)
 
 
 class TestIntersectionNode(BinaryTestCase):
     def test_operator_on_init(self):
-        node = IntersectNode(self.questions, self.questions)
+        node = IntersectNode(self.beta, self.beta)
         self.assertEqual(Operator.intersect, node.operator)
 
     def test_children_on_init(self):
-        node = IntersectNode(self.answers, self.answers_twin)
-        self.assertEqual(self.answers, node.left)
-        self.assertEqual(self.answers_twin, node.right)
+        node = IntersectNode(self.twin, self.twin_prime)
+        self.assertEqual(self.twin, node.left)
+        self.assertEqual(self.twin_prime, node.right)
 
     def test_attributes(self):
-        node = IntersectNode(self.questions, self.questions)
-        expected = ['id', 'question']
+        node = IntersectNode(self.beta, self.beta)
+        expected = get_attributes('beta', self.schema)
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_mismatch(self):
-        self.assertRaises(InputError, IntersectNode, self.questions,
-                          self.answers)
+        self.assertRaises(InputError, IntersectNode, self.beta,
+                          self.gamma)
 
 
 class TestJoinNode(BinaryTestCase):
     def test_operator_on_init(self):
-        node = CrossJoinNode(self.questions, self.questions)
+        node = CrossJoinNode(self.beta, self.beta)
         self.assertEqual(Operator.cross_join, node.operator)
 
     def test_children_on_init(self):
-        node = CrossJoinNode(self.questions, self.answers)
-        self.assertEqual(self.questions, node.left)
-        self.assertEqual(self.answers, node.right)
+        node = CrossJoinNode(self.beta, self.gamma)
+        self.assertEqual(self.beta, node.left)
+        self.assertEqual(self.gamma, node.right)
 
     def test_attributes_on_init(self):
-        node = CrossJoinNode(self.questions, self.answers)
-        expected = ['Questions.id', 'Questions.question', 'Answers.id',
-                    'Answers.question', 'Answers.answer']
+        node = CrossJoinNode(self.beta, self.gamma)
+        expected = (get_attributes('beta', self.schema, use_prefix=True) +
+                    get_attributes('gamma', self.schema, use_prefix=True))
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_attributes_when_left_child_is_join(self):
-        left = CrossJoinNode(self.questions, self.answers)
-        node = CrossJoinNode(left, self.questions)
-        expected = ['Questions.id', 'Questions.question', 'Answers.id',
-                    'Answers.question', 'Answers.answer', 'Questions.id',
-                    'Questions.question']
+        left = CrossJoinNode(self.beta, self.gamma)
+        node = CrossJoinNode(left, self.alpha)
+        expected = (get_attributes('beta', self.schema, use_prefix=True) +
+                    get_attributes('gamma', self.schema, use_prefix=True) +
+                    get_attributes('alpha', self.schema, use_prefix=True))
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_attributes_when_right_child_is_join(self):
-        right = CrossJoinNode(self.answers, self.questions)
-        node = CrossJoinNode(self.questions, right)
-        expected = ['Questions.id', 'Questions.question', 'Answers.id',
-                    'Answers.question', 'Answers.answer', 'Questions.id',
-                    'Questions.question']
+        right = CrossJoinNode(self.gamma, self.alpha)
+        node = CrossJoinNode(self.beta, right)
+        expected = (get_attributes('beta', self.schema, use_prefix=True) +
+                    get_attributes('gamma', self.schema, use_prefix=True) +
+                    get_attributes('alpha', self.schema, use_prefix=True))
         self.assertEqual(expected, node.attributes.to_list())
 
     def test_attributes_when_both_children_are_join(self):
-        left = CrossJoinNode(self.answers, self.questions)
-        right = CrossJoinNode(self.answers, self.questions)
+        left = CrossJoinNode(self.alpha, self.beta)
+        right = CrossJoinNode(self.gamma, self.twin)
         node = CrossJoinNode(left, right)
-        expected = ['Answers.id', 'Answers.question', 'Answers.answer',
-                    'Questions.id', 'Questions.question', 'Answers.id',
-                    'Answers.question', 'Answers.answer', 'Questions.id',
-                    'Questions.question']
+        expected = (get_attributes('alpha', self.schema, use_prefix=True) +
+                    get_attributes('beta', self.schema, use_prefix=True) +
+                    get_attributes('gamma', self.schema, use_prefix=True) +
+                    get_attributes('twin', self.schema, use_prefix=True))
         self.assertEqual(expected, node.attributes.to_list())
+
+
+def get_attributes(name, schema, use_prefix=False):
+    def prefixed(attribute):
+        if use_prefix:
+            return '{name}.{attr}'.format(name=name, attr=attribute)
+        else:
+            return attribute
+
+    return [prefixed(attribute) for attribute in schema.get_attributes(name)]

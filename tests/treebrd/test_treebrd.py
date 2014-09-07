@@ -1,9 +1,9 @@
 import functools
 from unittest import TestCase
 
-from rapt.treebrd.grammars import CoreGrammar, ExtendedGrammar
+from rapt.treebrd.grammars import ExtendedGrammar
 from rapt.treebrd.node import RelationNode, ProjectNode, \
-    CrossJoinNode, SelectNode, RenameNode, JoinNode, NaturalJoinNode, \
+    CrossJoinNode, SelectNode, RenameNode, NaturalJoinNode, \
     ThetaJoinNode
 from rapt.treebrd.schema import Schema
 from rapt.treebrd.treebrd import TreeBRD

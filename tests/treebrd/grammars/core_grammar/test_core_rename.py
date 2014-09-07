@@ -29,8 +29,8 @@ class TestProject(unittest.TestCase):
         self.assertEqual(expected, actual)
 
     def test_rename_relation_and_multiple_attributes(self):
-        expression = '\\rename_{Astronauts (name, age, alive)} astronauts;'
-        expected = [['\\rename', ['Astronauts', ['name', 'age', 'alive']],
+        expression = '\\rename_{nautical (name, age, alive)} astronauts;'
+        expected = [['\\rename', ['nautical', ['name', 'age', 'alive']],
                      ['astronauts']]]
         actual = self.parser.statements.parseString(expression).asList()
         self.assertEqual(expected, actual)

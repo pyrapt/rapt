@@ -132,8 +132,8 @@ class TestConditionAttrs(unittest.TestCase):
         self.assertEqual(expected, get_attrs('answer=42'))
 
     def test_conditions_binary_unary_with_prefix(self):
-        expected = ['A.answer']
-        self.assertEqual(expected, get_attrs('A.answer=42'))
+        expected = ['a.answer']
+        self.assertEqual(expected, get_attrs('a.answer=42'))
 
     def test_conditions_binary_unary_reversed(self):
         expected = ['answer']

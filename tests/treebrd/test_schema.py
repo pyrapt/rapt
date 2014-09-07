@@ -5,13 +5,13 @@ from rapt.treebrd.schema import Schema
 
 class TestSchema(TestCase):
     def test_contains_when_empty(self):
-        self.assertFalse(Schema({}).contains('Relation'))
+        self.assertFalse(Schema({}).contains('relation'))
 
     def test_contains_when_false(self):
-        self.assertFalse(Schema({'AnotherRelation': []}).contains('Relation'))
+        self.assertFalse(Schema({'another_relation': []}).contains('relation'))
 
     def test_contains_when_true(self):
-        self.assertTrue(Schema({'Relation': []}).contains('Relation'))
+        self.assertTrue(Schema({'relation': []}).contains('relation'))
 
     def test_to_dict(self):
         expected = {'alpha': ['a1'], 'beta': ['b1']}
