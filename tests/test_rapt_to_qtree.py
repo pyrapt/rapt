@@ -14,31 +14,31 @@ class TestQTreeTransformer(TestTransformer):
 
 class TestRelation(TestQTreeTransformer):
     def test_single_relation(self):
-        ra = 'Alpha;'
-        expected = ['\Tree[.$Alpha$ ]']
+        ra = 'alpha;'
+        expected = ['\Tree[.$alpha$ ]']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_multiple_relations(self):
-        ra = 'Alpha; Beta;'
-        expected = ['\Tree[.$Alpha$ ]', '\Tree[.$Beta$ ]']
+        ra = 'alpha; beta;'
+        expected = ['\Tree[.$alpha$ ]', '\Tree[.$beta$ ]']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestSelect(TestQTreeTransformer):
     def test_simple(self):
-        ra = '\\select_{a1=a2} Alpha;'
-        expected = ['\Tree[.${}_{{a1 = a2}}$ [.$Alpha$ ] ]'.format(SELECT_OP)]
+        ra = '\\select_{a1=a2} alpha;'
+        expected = ['\Tree[.${}_{{a1 = a2}}$ [.$alpha$ ] ]'.format(SELECT_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestProject(TestQTreeTransformer):
     def test_simple(self):
-        ra = '\\project_{a1, a2, a3} Alpha;'
+        ra = '\\project_{a1, a2, a3} alpha;'
         expected = [
-            '\Tree[.${}_{{a1, a2, a3}}$ [.$Alpha$ ] ]'.format(PROJECT_OP)]
+            '\Tree[.${}_{{a1, a2, a3}}$ [.$alpha$ ] ]'.format(PROJECT_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -46,22 +46,22 @@ class TestProject(TestQTreeTransformer):
 class TestRename(TestQTreeTransformer):
     @skip('Fix me after the Node with no attributes is implemented')
     def test_rename_relation(self):
-        ra = '\\rename_{Apex} Alpha;'
-        expected = ['\Tree[.${}_{{Apex}}$ [.$Alpha$ ] ]'.format(RENAME_OP)]
+        ra = '\\rename_{Apex} alpha;'
+        expected = ['\Tree[.${}_{{Apex}}$ [.$alpha$ ] ]'.format(RENAME_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     @skip('Fix me after the Node with no attributes is implemented')
     def test_rename_attributes(self):
-        ra = '\\rename_{(a, b, c)} Alpha;'
-        expected = ['\Tree[.${}_{{(a, b, c)}}$ [.$Alpha$ ] ]'.format(SELECT_OP)]
+        ra = '\\rename_{(a, b, c)} alpha;'
+        expected = ['\Tree[.${}_{{(a, b, c)}}$ [.$alpha$ ] ]'.format(SELECT_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_rename_relation_and_attributes(self):
-        ra = '\\rename_{Apex(a, b, c)} Alpha;'
+        ra = '\\rename_{apex(a, b, c)} alpha;'
         expected = [
-            '\Tree[.${}_{{Apex(a, b, c)}}$ [.$Alpha$ ] ]'.format(RENAME_OP)]
+            '\Tree[.${}_{{apex(a, b, c)}}$ [.$alpha$ ] ]'.format(RENAME_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -69,22 +69,22 @@ class TestRename(TestQTreeTransformer):
 class TestAssignment(TestQTreeTransformer):
     @skip('Fix me after the Node with no attributes is implemented')
     def test_relation(self):
-        ra = 'NewAlpha := Alpha;'
-        expected = ['\Tree[.$NewAlpha$ [.$Alpha$ ] ]']
+        ra = 'new_alpha := alpha;'
+        expected = ['\Tree[.$new_alpha$ [.$alpha$ ] ]']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
     def test_relation_with_attributes(self):
-        ra = 'NewAlpha(a, b, c) := Alpha;'
-        expected = ['\Tree[.$NewAlpha(a,b,c)$ [.$Alpha$ ] ]']
+        ra = 'new_alpha(a, b, c) := alpha;'
+        expected = ['\Tree[.$new_alpha(a,b,c)$ [.$alpha$ ] ]']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestJoin(TestQTreeTransformer):
     def test_relation(self):
-        ra = 'Alpha \\join Beta;'
-        expected = ['\Tree[.${}$ [.$Alpha$ ] [.$Beta$ ] ]'.format(JOIN_OP)]
+        ra = 'alpha \\join beta;'
+        expected = ['\Tree[.${}$ [.$alpha$ ] [.$beta$ ] ]'.format(JOIN_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -93,9 +93,9 @@ class TestNaturalJoin(TestQTreeTransformer):
     grammar = ExtendedGrammar
 
     def test_relation(self):
-        ra = 'Alpha \\natural_join Beta;'
+        ra = 'alpha \\natural_join beta;'
         expected = [
-            '\Tree[.${}$ [.$Alpha$ ] [.$Beta$ ] ]'.format(NATURAL_JOIN_OP)]
+            '\Tree[.${}$ [.$alpha$ ] [.$beta$ ] ]'.format(NATURAL_JOIN_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -104,8 +104,8 @@ class TestThetaJoin(TestQTreeTransformer):
     grammar = ExtendedGrammar
 
     def test_relation(self):
-        ra = 'Alpha \\join_{a1 = b1} Beta;'
-        expected = ['\Tree[.${}_{{a1 = b1}}$ [.$Alpha$ ] [.$Beta$ ] ]'.format(
+        ra = 'alpha \\join_{a1 = b1} beta;'
+        expected = ['\Tree[.${}_{{a1 = b1}}$ [.$alpha$ ] [.$beta$ ] ]'.format(
             THETA_JOIN_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
@@ -113,9 +113,9 @@ class TestThetaJoin(TestQTreeTransformer):
 
 class TestUnion(TestQTreeTransformer):
     def test_simple(self):
-        ra = 'Gamma \\union GammaTwin;'
+        ra = 'gamma \\union gammatwin;'
         expected = [
-            '\Tree[.${}$ [.$Gamma$ ] [.$GammaTwin$ ] ]'.format(UNION_OP)]
+            '\Tree[.${}$ [.$gamma$ ] [.$gammatwin$ ] ]'.format(UNION_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -124,17 +124,17 @@ class TestIntersect(TestQTreeTransformer):
     grammar = ExtendedGrammar
 
     def test_simple(self):
-        ra = 'Gamma \\intersect GammaTwin;'
+        ra = 'gamma \\intersect gammatwin;'
         expected = [
-            '\Tree[.${}$ [.$Gamma$ ] [.$GammaTwin$ ] ]'.format(INTERSECT_OP)]
+            '\Tree[.${}$ [.$gamma$ ] [.$gammatwin$ ] ]'.format(INTERSECT_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
 
 class TestDifference(TestQTreeTransformer):
     def test_simple(self):
-        ra = 'Gamma \\difference GammaTwin;'
+        ra = 'gamma \\difference gammatwin;'
         expected = [
-            '\Tree[.${}$ [.$Gamma$ ] [.$GammaTwin$ ] ]'.format(DIFFERENCE_OP)]
+            '\Tree[.${}$ [.$gamma$ ] [.$gammatwin$ ] ]'.format(DIFFERENCE_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
