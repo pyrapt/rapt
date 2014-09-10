@@ -1,6 +1,6 @@
 from rapt.treebrd.node import UnionNode, DifferenceNode, BinaryNode, \
-    IntersectNode, CrossJoinNode
-from rapt.treebrd.errors import InputError
+    IntersectNode, CrossJoinNode, ThetaJoinNode
+from rapt.treebrd.errors import InputError, AttributeReferenceError
 from rapt.treebrd.node import Operator
 from tests.treebrd.test_node import NodeTestCase
 
@@ -152,6 +152,63 @@ class TestJoinNode(BinaryTestCase):
                     get_attributes('gamma', self.schema, use_prefix=True) +
                     get_attributes('twin', self.schema, use_prefix=True))
         self.assertEqual(expected, node.attributes.to_list())
+
+
+class TestCrossNode(BinaryTestCase):
+    def test_operator_on_init(self):
+        node = ThetaJoinNode(self.alpha, self.beta, 'a1 = b1')
+        self.assertEqual(Operator.theta_join, node.operator)
+
+    def test_children_on_init(self):
+        node = ThetaJoinNode(self.alpha, self.beta, 'a1 = b1')
+        self.assertEqual(self.alpha, node.left)
+        self.assertEqual(self.beta, node.right)
+
+    def test_attributes_on_init(self):
+        node = ThetaJoinNode(self.alpha, self.beta, 'a1 = b1')
+        expected = (get_attributes('alpha', self.schema, use_prefix=True) +
+                    get_attributes('beta', self.schema, use_prefix=True))
+        self.assertEqual(expected, node.attributes.to_list())
+
+    def test_condition_when_init_has_condition(self):
+        condition = 'a1 = b1'
+        actual = ThetaJoinNode(self.alpha, self.beta, condition).conditions
+        self.assertEqual(condition, actual)
+
+    def test_condition_when_multiple_conditions(self):
+        condition = 'a1>41 and b1<43'
+        actual = ThetaJoinNode(self.alpha, self.beta, condition).conditions
+        self.assertEqual(condition, actual)
+
+    def test_condition_when_with_prefix(self):
+        condition = 'alpha.a1>41'
+        actual = ThetaJoinNode(self.alpha, self.beta, condition).conditions
+        self.assertEqual(condition, actual)
+
+    def test_condition_when_multiple_conditions_with_prefix(self):
+        condition = 'alpha.a1>41 and beta.b1<43'
+        actual = ThetaJoinNode(self.alpha, self.beta, condition).conditions
+        self.assertEqual(condition, actual)
+
+    def test_exception_when_first_attribute_in_condition_is_wrong(self):
+        self.assertRaises(AttributeReferenceError, ThetaJoinNode, self.alpha,
+                          self.beta, 'a2=42')
+
+    def test_exception_when_second_attribute_in_condition_is_wrong(self):
+        self.assertRaises(AttributeReferenceError, ThetaJoinNode, self.alpha,
+                          self.beta, 'a2=a2')
+
+    def test_exception_when_both_attributes_in_condition_are_wrong(self):
+        self.assertRaises(AttributeReferenceError, ThetaJoinNode, self.alpha,
+                          self.beta, 'a2=a3')
+
+    def test_exception_when_prefix_in_condition_is_wrong(self):
+        self.assertRaises(AttributeReferenceError, ThetaJoinNode, self.alpha,
+                          self.beta, 'beta.a1=42')
+
+    def test_exception_when_ambiguous_attributes(self):
+        self.assertRaises(AttributeReferenceError, ThetaJoinNode, self.alpha,
+                          self.ambiguous, 'd1=42')
 
 
 def get_attributes(name, schema, use_prefix=False):

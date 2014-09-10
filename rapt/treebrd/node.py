@@ -1,7 +1,7 @@
 import copy
 from enum import Enum
 
-from .errors import AttributeReferenceError, InputError, RelationReferenceError
+from .errors import InputError, RelationReferenceError
 from .grammars.condition_grammar import get_attrs
 from .attributes import AttributeList
 
@@ -89,7 +89,8 @@ class SelectNode(UnaryNode):
 
     def __init__(self, child, conditions):
         super().__init__(Operator.select, child)
-        self.conditions = validate_conditions(conditions, self.attributes)
+        self.attributes.validate(get_attrs(conditions))
+        self.conditions = conditions
 
     def __eq__(self, other):
         return self.conditions == other.conditions and super().__eq__(other)
@@ -210,7 +211,8 @@ class ThetaJoinNode(JoinNode):
 
     def __init__(self, left, right, conditions):
         super().__init__(Operator.theta_join, left, right)
-        self.conditions = validate_conditions(conditions, self.attributes)
+        self.attributes.validate(get_attrs(conditions))
+        self.conditions = conditions
 
     def __eq__(self, other):
         return self.conditions == other.conditions and super().__eq__(other)
@@ -279,20 +281,3 @@ class Operator(Enum):
     difference = 48
     union = 49
     intersect = 50
-
-
-def validate_conditions(conditions, attributes):
-    """
-    Return the conditions if each reference to an attribute is to one that
-    exists in the attributes for the node. Otherwise raise an exception.
-    :param conditions: A string of conditions.
-    :raise AttributeReferenceError: Raised if the conditions reference an
-    attribute that does not exist.
-    """
-    #todo: move to treebrd.py
-    references = get_attrs(conditions)
-    if attributes.contains(references):
-        return conditions
-    else:
-        raise AttributeReferenceError(
-            'At least one attribute in select is not in the relation.')

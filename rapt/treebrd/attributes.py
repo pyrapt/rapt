@@ -95,12 +95,12 @@ class AttributeList:
         """
         return [name for name, _ in self._contents]
 
-    def contains(self, attributes):
+    def validate(self, references):
         """
-        Return True if the attributes are in the AttributeList. Attributes may
-        be prefixed with a relation name.
+        Check if all references exist and are unambiguous.
         """
-        return set(attributes).issubset(set(self.to_list() + self.names))
+        for reference in references:
+            self.get_attribute(reference)
 
     def to_list(self):
         """

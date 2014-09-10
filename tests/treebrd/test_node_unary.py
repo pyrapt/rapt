@@ -123,6 +123,10 @@ class TestSelect(UnaryTestCase):
         self.assertRaises(AttributeReferenceError, SelectNode, self.alpha,
                           'beta.a1=42')
 
+    def test_exception_when_ambiguous_attributes(self):
+        self.assertRaises(AttributeReferenceError, SelectNode, self.ambiguous,
+                          'd1<5')
+
 
 class TestProject(UnaryTestCase):
     def test_operator_is_correct(self):
@@ -182,6 +186,10 @@ class TestProject(UnaryTestCase):
     def test_exception_when_prefix_is_wrong(self):
         self.assertRaises(InputReferenceError, ProjectNode, self.beta,
                           ['alpha.c2'])
+
+    def test_exception_when_ambiguous_attributes(self):
+        self.assertRaises(AttributeReferenceError, ProjectNode, self.ambiguous,
+                          'd1')
 
 
 class TestRename(TestUnaryNode):
