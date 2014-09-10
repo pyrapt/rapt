@@ -175,6 +175,8 @@ class JoinNode(BinaryNode):
     """
 
     def __init__(self, operator, left, right):
+        if left.name and right.name and left.name == right.name:
+            raise RelationReferenceError('Ambiguous relation reference.')
         super().__init__(operator, left, right, None)
         self.attributes = AttributeList.merge(left.attributes, right.attributes)
 

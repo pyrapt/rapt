@@ -1,9 +1,11 @@
-import functools
 from unittest import TestCase
 
+import functools
+
+from rapt.treebrd.errors import RelationReferenceError
 from rapt.treebrd.grammars import ExtendedGrammar
 from rapt.treebrd.node import RelationNode, ProjectNode, \
-    CrossJoinNode, SelectNode, RenameNode, NaturalJoinNode, \
+    CrossJoinNode, NaturalJoinNode, \
     ThetaJoinNode
 from rapt.treebrd.schema import Schema
 from rapt.treebrd.treebrd import TreeBRD
@@ -95,7 +97,7 @@ class TestProject(TreeBRDTestCase):
         self.assertEqual(expected, forest[0])
 
 
-class TestJoins(TreeBRDTestCase):
+class JoinTestCase(TreeBRDTestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -105,6 +107,8 @@ class TestJoins(TreeBRDTestCase):
         cls.schema = Schema(cls.definition)
         cls.build = cls.create_build_function(cls.definition)
 
+
+class TestJoins(JoinTestCase):
     def test_join_with_natural_join(self):
         instring = 'alpha \\join beta \\natural_join gamma;'
         forest = self.build(instring)
@@ -146,7 +150,7 @@ class TestJoins(TreeBRDTestCase):
         self.assertEqual(expected, forest[0])
 
 
-class TestCrossJoin(TestJoins):
+class TestCrossJoin(JoinTestCase):
     def test_join_two_separate_relations(self):
         instring = 'alpha \\join beta;'
         forest = self.build(instring)
@@ -154,15 +158,6 @@ class TestCrossJoin(TestJoins):
         right = RelationNode('beta', self.schema)
         expected = CrossJoinNode(left, right)
         self.assertEqual(expected, forest[0])
-
-    def test_join_two_identical_relations(self):
-        instring = 'alpha \\join alpha;'
-        forest = self.build(instring)
-        left = RelationNode('alpha', self.schema)
-        right = RelationNode('alpha', self.schema)
-        expected = CrossJoinNode(left, right)
-        self.assertEqual(expected, forest[0])
-        self.fail('Should not pass.')
 
     def test_join_three_separate_relations(self):
         instring = 'alpha \\join beta \\join gamma;'
@@ -174,8 +169,13 @@ class TestCrossJoin(TestJoins):
         expected = CrossJoinNode(intermediate, right)
         self.assertEqual(expected, forest[0])
 
+    def test_exception_when_join_two_identical_relations(self):
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('alpha', self.schema)
+        self.assertRaises(RelationReferenceError, CrossJoinNode, left, right)
 
-class TestThetaJoin(TestJoins):
+
+class TestThetaJoin(JoinTestCase):
     def test_join_two_separate_relations(self):
         instring = 'alpha \\theta_join_{a1 = b1} beta;'
         forest = self.build(instring)
@@ -183,15 +183,6 @@ class TestThetaJoin(TestJoins):
         right = RelationNode('beta', self.schema)
         expected = ThetaJoinNode(left, right, 'a1 = b1')
         self.assertEqual(expected, forest[0])
-
-    def test_join_two_identical_relations(self):
-        instring = 'alpha \\theta_join_{a1 = a1} alpha;'
-        forest = self.build(instring)
-        left = RelationNode('alpha', self.schema)
-        right = RelationNode('alpha', self.schema)
-        expected = ThetaJoinNode(left, right, 'a1 = a1')
-        self.assertEqual(expected, forest[0])
-        self.fail('Should not pass.')
 
     def test_join_three_separate_relations(self):
         instring = 'alpha \\theta_join_{a1 = b1} beta ' \
@@ -204,28 +195,34 @@ class TestThetaJoin(TestJoins):
         expected = ThetaJoinNode(intermediate, right, 'a1 = b1')
         self.assertEqual(expected, forest[0])
 
+    def test_exception_when_join_two_identical_relations(self):
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('alpha', self.schema)
+        self.assertRaises(RelationReferenceError, ThetaJoinNode, left, right,
+                          'a1=5')
 
-class TestMystery(TreeBRDTestCase):
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.definition = {'magic_wand': ['owner', 'manufacturer', 'wood',
-                                         'core', 'length', 'rigidity']}
-        cls.schema = Schema(cls.definition)
-        cls.build = cls.create_build_function(cls.definition)
 
-    def test_single_project_single_attr(self):
-        instring = '' \
-                   '\\project_{m1.manufacturer} ' \
-                   '\\select_{m2.manufacturer=1} ' \
-                   '(\\rename_{m1} magic_wand ' \
-                   '\\join ' \
-                   '\\rename_{m2} magic_wand);'
+class TestNaturalJoin(JoinTestCase):
+    def test_join_two_separate_relations(self):
+        instring = 'alpha \\natural_join beta;'
         forest = self.build(instring)
-        l = RelationNode('magic_wand', self.schema)
-        r1 = RenameNode(l, 'm1', [], self.schema)
-        r2 = RenameNode(l, 'm2', [], self.schema)
-        j = CrossJoinNode(r1, r2)
-        s = SelectNode(j, 'm2.manufacturer = 1')
-        expected = ProjectNode(s, ['m1.manufacturer'])
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('beta', self.schema)
+        expected = NaturalJoinNode(left, right)
         self.assertEqual(expected, forest[0])
+
+    def test_join_three_separate_relations(self):
+        instring = 'alpha \\natural_join beta ' \
+                   '\\natural_join gamma;'
+        forest = self.build(instring)
+        left = RelationNode('alpha', self.schema)
+        middle = RelationNode('beta', self.schema)
+        right = RelationNode('gamma', self.schema)
+        intermediate = NaturalJoinNode(left, middle)
+        expected = NaturalJoinNode(intermediate, right)
+        self.assertEqual(expected, forest[0])
+
+    def test_exception_when_join_two_identical_relations(self):
+        left = RelationNode('alpha', self.schema)
+        right = RelationNode('alpha', self.schema)
+        self.assertRaises(RelationReferenceError, NaturalJoinNode, left, right)

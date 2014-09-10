@@ -113,7 +113,7 @@ class TestIntersectionNode(BinaryTestCase):
 
 class TestJoinNode(BinaryTestCase):
     def test_operator_on_init(self):
-        node = CrossJoinNode(self.beta, self.beta)
+        node = CrossJoinNode(self.alpha, self.beta)
         self.assertEqual(Operator.cross_join, node.operator)
 
     def test_children_on_init(self):
