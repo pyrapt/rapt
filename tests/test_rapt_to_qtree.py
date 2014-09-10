@@ -44,17 +44,15 @@ class TestProject(TestQTreeTransformer):
 
 
 class TestRename(TestQTreeTransformer):
-    @skip('Fix me after the Node with no attributes is implemented')
     def test_rename_relation(self):
         ra = '\\rename_{Apex} alpha;'
-        expected = ['\Tree[.${}_{{Apex}}$ [.$alpha$ ] ]'.format(RENAME_OP)]
+        expected = ['\Tree[.${}_{{apex(a1, a2, a3)}}$ [.$alpha$ ] ]'.format(RENAME_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
-    @skip('Fix me after the Node with no attributes is implemented')
     def test_rename_attributes(self):
         ra = '\\rename_{(a, b, c)} alpha;'
-        expected = ['\Tree[.${}_{{(a, b, c)}}$ [.$alpha$ ] ]'.format(SELECT_OP)]
+        expected = ['\Tree[.${}_{{alpha(a, b, c)}}$ [.$alpha$ ] ]'.format(RENAME_OP)]
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
@@ -67,10 +65,9 @@ class TestRename(TestQTreeTransformer):
 
 
 class TestAssignment(TestQTreeTransformer):
-    @skip('Fix me after the Node with no attributes is implemented')
     def test_relation(self):
         ra = 'new_alpha := alpha;'
-        expected = ['\Tree[.$new_alpha$ [.$alpha$ ] ]']
+        expected = ['\Tree[.$new_alpha(a1,a2,a3)$ [.$alpha$ ] ]']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
