@@ -2,7 +2,7 @@ import logging
 
 from .rapt import Rapt
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 # To add logging to a python file insert `log = logging.getLogger(__name__)`
 # near the top at the module level.
