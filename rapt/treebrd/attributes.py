@@ -123,7 +123,7 @@ class AttributeList:
                 if match:
                     raise AttributeReferenceError(
                         'Ambiguous attribute reference: {}.'.format(
-                            attribute.prefixed))
+                            attribute.name))
                 else:
                     match = attribute
 
