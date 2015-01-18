@@ -155,8 +155,9 @@ class AttributeList:
 
     def rename(self, names, prefix):
         """
-        Rename the Attributes' names, prefixes, or both.
-        If names are not specified, the current names must be unambiguous.
+        Rename the Attributes' names, prefixes, or both. If names or prefix
+        evaluates to None, the old version is used.
+        Resulting names must be unambiguous.
         :param names: A list of new names for each attribute or an empty list.
         :param prefix: A new prefix for the name or None
         """
