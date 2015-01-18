@@ -1,5 +1,7 @@
 from pyparsing import (alphanums, Regex, Word, alphas, quotedString,
-                       removeQuotes, Combine, Optional, downcaseTokens)
+                       removeQuotes, Combine, Optional, downcaseTokens, ParserElement)
+
+ParserElement.enablePackrat()
 
 
 class ProtoGrammar:
