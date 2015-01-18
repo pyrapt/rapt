@@ -417,6 +417,19 @@ class TestThetaJoin(TestSQL):
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 
+    def test_theta_join_then_join(self):
+        ra = '(alpha \\join_{alpha.a1=beta.b1 and b3>50} beta) \\join gamma;'
+        expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, '
+                    'beta.b1, beta.b2, beta.b3, '
+                    'gamma.g1, gamma.g2 FROM '
+                    '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
+                    'JOIN '
+                    '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
+                    'ON alpha.a1 = beta.b1 and b3 > 50 '
+                    'CROSS JOIN (SELECT gamma.g1, gamma.g2 FROM gamma) AS gamma']
+        actual = self.translate(ra)
+        self.assertEqual(expected, actual)
+
 
 class TestSet:
     def test_simple(self):
