@@ -411,9 +411,9 @@ class TestThetaJoin(TestSQL):
         expected = ['SELECT alpha.a1, alpha.a2, alpha.a3, '
                     'beta.b1, beta.b2, beta.b3 FROM '
                     '(SELECT alpha.a1, alpha.a2, alpha.a3 FROM alpha) AS alpha '
-                    'CROSS JOIN '
+                    'JOIN '
                     '(SELECT beta.b1, beta.b2, beta.b3 FROM beta) AS beta '
-                    'WHERE a1 = b1']
+                    'ON a1 = b1']
         actual = self.translate(ra)
         self.assertEqual(expected, actual)
 

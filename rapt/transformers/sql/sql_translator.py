@@ -1,3 +1,4 @@
+from rapt.treebrd.attributes import AttributeList
 from ...treebrd.node import Operator
 from ..base_translator import BaseTranslator
 
@@ -66,7 +67,7 @@ class Translator(BaseTranslator):
             Operator.difference: 'EXCEPT',
             Operator.intersect: 'INTERSECT',
             Operator.cross_join: 'CROSS JOIN',
-            Operator.theta_join: 'CROSS JOIN',
+            Operator.theta_join: 'JOIN',
             Operator.natural_join: 'NATURAL JOIN',
         }
         return operators[node.operator]
@@ -180,7 +181,9 @@ class Translator(BaseTranslator):
 
     def _join_helper(self, node):
             sobject = self.translate(node)
-            if node.operator in {Operator.cross_join, Operator.natural_join}:
+            if node.operator in {
+                Operator.cross_join, Operator.natural_join, Operator.theta_join
+            }:
                 return sobject.from_block
             else:
                 return '({subquery}) AS {name}'.format(
@@ -198,8 +201,13 @@ class Translator(BaseTranslator):
             left=self._join_helper(node.left),
             right=self._join_helper(node.right),
             operator=self._get_sql_operator(node))
-        where_block = node.conditions if hasattr(node, 'conditions') else ''
-        return self.query(select_block, from_block, where_block)
+
+        if node.operator == Operator.theta_join:
+            from_block = '{from_block} ON {conditions}'.format(
+                from_block=from_block,
+                conditions=node.conditions)
+
+        return self.query(select_block, from_block, '')
 
     def _set_op(self, node):
         """
