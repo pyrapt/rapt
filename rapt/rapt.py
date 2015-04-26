@@ -40,7 +40,15 @@ class Rapt:
         return sql_translator.translate(root_list, use_bag_semantics)
 
     def to_sql_sequence(self, instring, schema, use_bag_semantics=False):
-        # TODO: docstring
+        """
+        Translate a relational algebra string into a list of SQL strings generated
+        by a post-order traversal of the parse tree for the input string.
+
+        :param instring: a relational algebra string to translate
+        :param schema: a mapping of relation names to their attributes
+        :param use_bag_semantics: flag for using relational algebra bag semantics
+        :return: a list of SQL translation strings
+        """
         root_list = self.to_syntax_tree(instring, schema)
         return [
             sql_translator.translate(root.post_order(), use_bag_semantics)

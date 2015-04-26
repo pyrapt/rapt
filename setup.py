@@ -1,6 +1,7 @@
 import codecs
 import os
 import re
+import sys
 
 from setuptools import setup, find_packages
 
@@ -19,82 +20,51 @@ def find_version(*file_paths):
 
     # The version line must have the form
     # __version__ = 'ver'
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
+    version_match = re.search(r'^__version__ = [\'"]([^\'"]*)[\'"]',
                               version_file, re.M)
     if version_match:
         return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    raise RuntimeError('Unable to find version string.')
+
+
+def create_requirements():
+    requirements = ['pyparsing>=2.0.1']
+    if sys.version_info < (3, 4):
+        requirements.append('enum34>=1.0')
+    return requirements
 
 
 # Get the long description from the relevant file
-with codecs.open('DESCRIPTION.rst', encoding='utf-8') as f:
+with codecs.open('README.rst', encoding='utf-8') as f:
     long_description = f.read()
 
+with codecs.open('AUTHORS.rst', encoding='utf-8') as f:
+    authors = f.read()
+
 setup(
-    name="rapt",
+    name='rapt',
     version=find_version('rapt', '__init__.py'),
-    description="Relational algebra parser and translator.",
-    long_description=long_description,
-
-    # The project URL.
-    url='https://bitbucket.org/olessika/rapt.git',
-
-    # Author details
-    author='',
+    description='Relational algebra parsing tools.',
+    long_description='{desc}\n\n{authors}'.format(desc=long_description, authors=authors),
+    url='https://github.com/pyrapt/rapt',
+    author='RAPT Team',
     author_email='',
-
-    # Choose your license
     license='MIT',
 
     classifiers=[
-        # How mature is this project? Common values are
-        #   3 - Alpha
-        #   4 - Beta
-        #   5 - Production/Stable
-        'Development Status :: 3 - Alpha',
-
-        # Indicate who your project is intended for
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Topic :: Education',
-
-        # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: MIT License',
-
-        # Specify the Python versions you support here. In particular, ensure
-        # that you indicate whether you support Python 2, Python 3 or both.
-        # 'Programming Language :: Python :: 2',
-        # 'Programming Language :: Python :: 2.6',
-        # 'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.1',
         'Programming Language :: Python :: 3.2',
         'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
     ],
 
-    # What does your project relate to?
     keywords='"relational algebra" ra sql parsing pyparsing',
 
-    # You can just specify the packages manually here if your project is
-    # simple. Or you can use find_packages.
-    packages=find_packages(exclude=["contrib", "docs", "tests*"]),
-
-    # List run-time dependencies here.  These will be installed by pip when your
-    # project is installed.
-    install_requires=['pyparsing'],
-
-    # If there are data files included in your packages that need to be
-    # installed, specify them here.  If using Python 2.6 or less, then these
-    # have to be included in MANIFEST.in as well.
-    package_data={
-        'rapt': [],
-    },
-
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to name the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'rapt=rapt:main',
-        ],
-    },
+    packages=find_packages(exclude=['config', 'docs', 'tests*']),
+    install_requires=create_requirements(),
 )

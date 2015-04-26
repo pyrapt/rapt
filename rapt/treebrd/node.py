@@ -2,7 +2,7 @@ import copy
 from enum import Enum
 
 from .errors import InputError, RelationReferenceError
-from .grammars.condition_grammar import get_attrs
+from .grammars.condition_grammar import get_attribute_references
 from .attributes import AttributeList
 
 
@@ -89,7 +89,7 @@ class SelectNode(UnaryNode):
 
     def __init__(self, child, conditions):
         super().__init__(Operator.select, child)
-        self.attributes.validate(get_attrs(conditions))
+        self.attributes.validate(get_attribute_references(conditions))
         self.conditions = conditions
 
     def __eq__(self, other):
@@ -213,7 +213,7 @@ class ThetaJoinNode(JoinNode):
 
     def __init__(self, left, right, conditions):
         super().__init__(Operator.theta_join, left, right)
-        self.attributes.validate(get_attrs(conditions))
+        self.attributes.validate(get_attribute_references(conditions))
         self.conditions = conditions
 
     def __eq__(self, other):

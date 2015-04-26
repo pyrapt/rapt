@@ -11,14 +11,6 @@ class ExtendedGrammar(CoreGrammar):
     specification refer to the associated grammar file.
     """
 
-    # Grammar Rules
-
-    # natural_join_expr ::= expression natural_join expression
-
-    # theta_join_expr ::= expression join
-    # param_start conditions param_stop expression
-
-    #
     @property
     def natural_join(self):
         """
@@ -36,7 +28,6 @@ class ExtendedGrammar(CoreGrammar):
             setParseAction(self.theta_parse_action)
         return long ^ short
 
-    #todo: remove replacement of theta_join_op
     def theta_parse_action(self, s, l, t):
         t[0] = self.syntax.theta_join_op
         return t

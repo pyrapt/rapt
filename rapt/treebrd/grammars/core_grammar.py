@@ -78,7 +78,6 @@ class CoreGrammar(ConditionGrammar):
         return self.project | self.select | self.rename
 
     # Binary Operators (Precedence 1)
-    #
 
     @property
     def join(self):

@@ -1,6 +1,6 @@
 import unittest
 from pyparsing import ParseException
-from rapt.treebrd.grammars.condition_grammar import ConditionGrammar, get_attrs
+from rapt.treebrd.grammars.condition_grammar import ConditionGrammar, get_attribute_references
 from tests.treebrd.grammars.grammar_test_case import GrammarTestCase
 
 
@@ -129,27 +129,27 @@ class TestConditionAttrs(unittest.TestCase):
 
     def test_conditions_binary_unary(self):
         expected = ['answer']
-        self.assertEqual(expected, get_attrs('answer=42'))
+        self.assertEqual(expected, get_attribute_references('answer=42'))
 
     def test_conditions_binary_unary_with_prefix(self):
         expected = ['a.answer']
-        self.assertEqual(expected, get_attrs('a.answer=42'))
+        self.assertEqual(expected, get_attribute_references('a.answer=42'))
 
     def test_conditions_binary_unary_reversed(self):
         expected = ['answer']
-        self.assertEqual(expected, get_attrs('42=answer'))
+        self.assertEqual(expected, get_attribute_references('42=answer'))
 
     def test_conditions_binary_unary_no_attr(self):
-        self.assertEqual([], get_attrs('42=42'))
+        self.assertEqual([], get_attribute_references('42=42'))
 
     def test_conditions_binary_unary_two_attrs(self):
         expected = ['answer', 'known']
-        self.assertEqual(expected, get_attrs('answer=known'))
+        self.assertEqual(expected, get_attribute_references('answer=known'))
 
     def test_conditions_binary_two_attrs(self):
         expected = ['answer', 'known']
-        self.assertEqual(expected, get_attrs('answer=known and 42=42'))
+        self.assertEqual(expected, get_attribute_references('answer=known and 42=42'))
 
     def test_conditions_binary_man_attrs(self):
         expected = ['answer', 'known', 'answer', 'unknown']
-        self.assertEqual(expected, get_attrs('answer=known and answer=unknown'))
+        self.assertEqual(expected, get_attribute_references('answer=known and answer=unknown'))

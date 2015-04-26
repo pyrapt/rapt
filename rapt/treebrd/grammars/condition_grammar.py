@@ -4,11 +4,18 @@ from .proto_grammar import ProtoGrammar
 from .syntax import Syntax
 
 
-def get_attrs(instring):
-    # todo: move to instance method
+def get_attribute_references(instring):
+    """
+    Return a list of attribute references in the condition expression.
+
+    attribute_reference ::= relation_name "." attribute_name | attribute_name
+
+    :param instring: a condition expression.
+    :return: a list of attribute references.
+    """
     parsed = ConditionGrammar().conditions.parseString(instring)
     result = parsed if isinstance(parsed[0], str) else parsed[0]
-    return result.attrs.asList() if result.attrs else []
+    return result.attribute_reference.asList() if result.attribute_reference else []
 
 
 class ConditionGrammar(ProtoGrammar):
@@ -52,7 +59,7 @@ class ConditionGrammar(ProtoGrammar):
         """
         operand ::= identifier | string_literal | number
         """
-        return (self.attribute_reference('attrs*') |
+        return (self.attribute_reference('attribute_reference*') |
                 self.string_literal |
                 self.number)
 
