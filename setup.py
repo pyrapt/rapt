@@ -48,7 +48,7 @@ setup(
     long_description='{desc}\n\n{authors}'.format(desc=long_description, authors=authors),
     url='https://github.com/pyrapt/rapt',
     author='RAPT Team',
-    author_email='',
+    author_email='olessia.karpova@gmail.com',
     license='MIT',
 
     classifiers=[
